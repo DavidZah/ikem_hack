@@ -13,7 +13,7 @@ from werkzeug.utils import secure_filename
 import random
 
 
-UPLOAD_FOLDER = 'C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/ikem_hack/web/tmp/'
+UPLOAD_FOLDER = 'tmp\\'
 ALLOWED_EXTENSIONS = {'xml', 'pdf'}
 
 app = Flask(__name__)
@@ -24,14 +24,17 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def do_ai_magic():
-    return random.randrange(0,100)
+    return random.randrange(0,100)/100
 
-@app.route('/uploads/<name>', methods=['GET'])
+@app.route('/uploads/<name>')
 def download_file(name):
     x = do_ai_magic()
-    b = "width:"+str(x)+"%"
-    result = [b,str(x)]
-    return render_template("dead.html", result=result)
+    return f'''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Jaká je šance že umřeš</h1>
+    {x}
+    '''
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():

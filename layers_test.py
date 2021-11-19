@@ -1,4 +1,4 @@
-from PIL import Image
+
 from matplotlib import pyplot as plt
 from tensorflow import keras
 import random
@@ -89,11 +89,35 @@ def get_ECG_model():
 def get_wave_form_model():
     block_1_output,inputs_ECG = get_ECG_model()
 
-    x = layers.Dense(32)(block_1_output)
-    x = layers.Dense(32)(x)
+    x = layers.Dense(64)(block_1_output)
+    x = layers.Dense(64)(x)
     output = layers.Dense(1,activation="softmax")(x)
     model = keras.Model(inputs_ECG, output, name="DAVE_NEURON_NET")
     return model
+
+def mega_cool_neural_net():
+    inputs = keras.Input(shape=ECG_model_shape, name="COOLmodel")
+
+
+    conv1 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(inputs)
+    conv1 = keras.layers.BatchNormalization()(conv1)
+    conv1 = keras.layers.ReLU()(conv1)
+
+    conv2 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(conv1)
+    conv2 = keras.layers.BatchNormalization()(conv2)
+    conv2 = keras.layers.ReLU()(conv2)
+
+    conv3 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(conv2)
+    conv3 = keras.layers.BatchNormalization()(conv3)
+    conv3 = keras.layers.ReLU()(conv3)
+
+    gap = keras.layers.GlobalAveragePooling1D()(conv3)
+
+    output_layer = keras.layers.Dense(1, activation="softmax")(gap)
+
+    return keras.models.Model(inputs=inputs, outputs=output_layer)
+
+
 
 def complete_model():
     block_1_output,inputs_ECG = get_ECG_model()
@@ -106,41 +130,30 @@ def complete_model():
     model = keras.Model([inputs_DEM,inputs_ECG],output,name="DAVE_NEURON_NET")
     return model
 
+if __name__ == "__main__":
 
-data = get_training_set("data\\class2.json","data\\npy\\")
+    data = get_training_set("data/class2.json","data/npy/")
 
-#model = complete_model()
-model = get_wave_form_model()
-model.summary()
-model.compile(optimizer="adam",loss =tf.keras.losses.BinaryCrossentropy(from_logits=True),metrics=['accuracy'])
-keras.utils.plot_model(model, "mini_resnet.png", show_shapes=True)
+    #model = complete_model()
+    model = get_wave_form_model()
+    #model = mega_cool_neural_net()
+    model.summary()
+    model.compile(optimizer="adam",loss =tf.keras.losses.BinaryCrossentropy(from_logits=False),metrics=['accuracy'])
+    #keras.utils.plot_model(model, "mini_resnet.png", show_shapes=True)
 
-random.shuffle(data)
+    random.seed(123)
+    random.shuffle(data)
 
-val_samples = 200
-train_gen = Ikem_beat(1,data[:-val_samples],1)
-valid_gen = Ikem_beat(1,data[-val_samples:],1)
+    val_samples = 50
+    train_gen = Ikem_beat(1,data[:-val_samples],1)
+    valid_gen = Ikem_beat(1,data[-val_samples:],1)
 
-callbacks = [
-    keras.callbacks.ModelCheckpoint("callback_save.h5", save_best_only=True)
-]
+    callbacks = [
+        keras.callbacks.ModelCheckpoint("callback_save.h5", save_best_only=True)
+    ]
 
-epochs = 7
-history = model.fit(train_gen,validation_data =  valid_gen,epochs=epochs,callbacks=callbacks)
+    epochs = 1
+    history = model.fit(train_gen,validation_data =  valid_gen,epochs=epochs)
 
-model.save("final.h5")
+    model.save("final.h5")
 
-plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'val'], loc='upper left')
-plt.show()
-plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'val'], loc='upper left')
-plt.show()
