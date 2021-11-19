@@ -1,93 +1,67 @@
-import rq.exceptions
-from rq import Queue
-from rq.job import Job
-from worker import conn
-from pathlib import Path
-from loguru import logger
-import flask
-from flask import request, jsonify, render_template
-import time
+import io
+from datetime import date
+from flask import send_from_directory
 
-import requests
-
-app = flask.Flask(__name__)
-q = Queue(connection=conn)
+today = date.today()
+from flask import Flask, redirect, url_for, request, send_file, render_template
 
 
-def do_computer_vision(filename, outputdir):
-    logger.debug(f"working on {filename}, outputdir={outputdir}")
 
-    main_tracker("./tracker_model {} --output_dir {}".format(filename, outputdir))
-    #run_media_processing(Path(filename), Path(outputdir))
-    time.sleep(10)
-    logger.debug("Work finished")
+import os
+from flask import Flask, flash, request, redirect, url_for
+from werkzeug.utils import secure_filename
+import random
 
 
-@app.route("/run", methods=["GET", "POST"])
-def index():
-    logger.debug("index in progress")
-    results = {}
-    if request.method == "POST":
-        # this import solves a rq bug which currently exists
-        from app import do_computer_vision
+UPLOAD_FOLDER = 'tmp\\'
+ALLOWED_EXTENSIONS = {'xml', 'pdf'}
 
-        # get url that the person has entered
-        # url = request.form['filename']
-        logger.debug(request.form)
-        logger.debug(request.args)
-        filename = request.args.get("filename")
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-        outputdir = request.args.get("outputdir")
-        # if not url[:8].startswith(('https://', 'http://')):
-        #     url = 'http://' + url
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-        # time.sleep(10)
-        if not Path(filename).exists():
-            logger.debug(f"File does not exist. filename={filename}")
-            return jsonify({"error": "File does not exists."})
+def do_ai_magic():
+    return random.randrange(0,100)/100
 
-        job = q.enqueue_call(
-            func=do_computer_vision, args=(filename, outputdir), result_ttl=5000,
-            timeout=3600,
-        )
-        job_id = job.get_id()
-        logger.debug(f"Job enqueued, job_id={job_id}")
-        return jsonify(job_id)
-        # return jsonify("Ok")
-    return jsonify({})  # "Ok", 100
+@app.route('/uploads/<name>')
+def download_file(name):
+    x = do_ai_magic()
+    return f'''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Jaká je šance že umřeš</h1>
+    {x}
+    '''
 
-    # return render_template('index.html', results=results)
-    # return
-    # yield promise
-
-@app.route("/exists", methods=["GET", "POST"])
-def exists():
-    if request.method == "POST":
-        filename = request.args.get("filename")
-        exists = Path(filename).exists()
-        logger.debug(f"exists={exists}")
-        return jsonify(exists)
-        # return jsonify({"exists": exists})
-    return jsonify({})
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('download_file', name=filename))
+    return render_template('upload.html')
 
 
-@app.route("/is_finished/<job_key>", methods=["GET"])
-def get_results(job_key):
-    logger.debug(job_key)
-
-    try:
-        job = Job.fetch(job_key, connection=conn)
-    except rq.exceptions.NoSuchJobError as e:
-        logger.debug(f"Job not found. Job ID={job_key}")
-        return jsonify(False)
-    logger.debug(f"Job finished. job_id={job.is_finished}")
-
-    return jsonify(job.is_finished)
-    # if job.is_finished:
-    #     return str(job.result), 200
-    # else:
-    #     return "Nay!", 202
 
 
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+
+def run(port=8000):
+    app.run(debug=False, host='0.0.0.0', port=port)
+
+
+if __name__ == '__main__':
+    app.run(debug=False)
