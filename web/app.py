@@ -58,8 +58,8 @@ def upload_file():
                 content = pdf_to_nlp.convert_pdf_to_string(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
                 patient = Patient()
                 patient.generate_from_pdf(content)
-                print(patient.nlp)
-                x = do_ai_magic()
+                print(patient.type)
+                x = predictor.predict(patient)*100
                 os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
                 #DAVIDE TADY CONTENT JSOU TO NLP
                 return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])

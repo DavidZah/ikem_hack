@@ -29,12 +29,14 @@ class Predictor:
         if(patient.type == 1):
 
             string = patient.nlp
-            string = string.decode("utf-8")
+            #string = string.decode("utf-8")
             vec = self.vectorizer.transform([string]).toarray()
             to_predict = np.expand_dims(vec,axis=0)
             x = self.pdf_model.predict(to_predict)
-            return x[0][0]
-
+            x = x[0][0][0]
+            return x
+        if(patient.type == 0):
+            raise NotImplemented
 
 
 if __name__ == "__main__":
