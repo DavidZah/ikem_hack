@@ -31,13 +31,14 @@ class Patient:
         self.classification = None
         self.nlp = None
     
-    def __init__(self, csv_data, nlp_folder, xml_folder):
+    def __init__(self, csv_data, nlp_folder, xml_folder, save_xml=False):
         self.classification = csv_data[1]
         self.identificator = csv_data[0]
         self.data = self.find_xml(self.identificator, xml_folder, ".xml")
-        if self.data[0][0] != None:
+        if self.data[0][0] != None and save_xml:
             self.save_npy(npy_folder, self.identificator, self.data)
-        #self.nlp = self.find_file(self.identificator, nlp_folder, ".txt")
+        self.nlp = self.find_file(self.identificator, nlp_folder, ".txt")
+
     
     def find_xml(self, identificator, folder, extension):
         dir_list = os.listdir(str(folder))
@@ -59,7 +60,7 @@ class Patient:
                 ret = f.read()
                 f.close()
                 return ret
-        return None
+        return [None]
 
     def find_diagnosis(self, strin):
         if strin[0:3] == "I35":
