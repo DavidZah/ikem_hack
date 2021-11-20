@@ -12,14 +12,54 @@ from patient import Patient
 from pathlib import Path
 os.environ["PATH"] += os.pathsep + 'C:\\Program Files\\Graphviz\\bin'
 
+batch_size = 1
 
 ECG_model_shape = (12,5000,1)
 DEM_ECFG_shape = (24,1)
 
 
+def get_training_and_validation_set(json_file, npy_path, tp=15):
+    validation_set = []
+    training_set =[]
+    orig_training_set = get_training_set(json_file, npy_path)
+    sick_counter = 0
+    healthy_counter = 0
+    for patient in orig_training_set:
+        if patient.classification == 1 and sick_counter != tp:
+            validation_set.append(patient)
+            sick_counter += 1
+        elif patient.classification == 0 and healthy_counter != tp:
+            validation_set.append(patient)
+            healthy_counter += 1
+        else:
+            training_set.append(patient)
+    return training_set, validation_set
 
+def get_training_and_validation_set_giv_size(json_file, npy_path, tp=10, pp = 150):
+    validation_set = []
+    training_set =[]
+    orig_training_set = get_training_set(json_file, npy_path)
+    sick_counter = 0
+    healthy_counter = 0
+    patient_counter = 0
+
+    for patient in orig_training_set:
+        if patient.classification == 1 and sick_counter != tp:
+            validation_set.append(patient)
+            sick_counter += 1
+        elif patient.classification == 0 and healthy_counter != tp:
+            validation_set.append(patient)
+            healthy_counter += 1
+        elif patient.classification == 1 and patient_counter != pp*2:
+            training_set.append(patient)
+            patient_counter +=1
+        elif patient.classification == 0 and patient_counter != pp * 2:
+            training_set.append(patient)
+            patient_counter +=1
+    return training_set, validation_set
 
 def get_training_set(json_file, npy_path):
+    npy_path += os.path.sep
     return_list = []
     npy_filelist = os.listdir(npy_path)
     count = 0
@@ -29,7 +69,6 @@ def get_training_set(json_file, npy_path):
             continue
         count += 1
         return_list.append(new_patient)
-    print(count)
     return return_list
 
 class Ikem_beat(keras.utils.Sequence):
@@ -79,6 +118,7 @@ def get_ECG_model():
     x = layers.BatchNormalization()(x)
     x = layers.Conv2D(64, 2, activation="relu")(x)
     x = layers.BatchNormalization()(x)
+    tf.keras.layers.Dropout(0.2)
     #Dot know pool size
     x = layers.MaxPooling2D(
     pool_size=(3, 3))(x)
@@ -133,7 +173,12 @@ def complete_model():
 
 if __name__ == "__main__":
 
-    data = get_training_set(str(Path("data/class2.json")),str(Path("data/npy/")))
+    data = get_training_set(str(Path("data/class2_2.json")),str(Path("data/npy/")))
+
+    train_data , val_data = get_training_and_validation_set_giv_size(str(Path("data/class2.json")),str(Path("data/npy/")))
+
+    random.shuffle(train_data)
+    random.shuffle(val_data)
 
     #model = complete_model()
     model = get_wave_form_model()
@@ -142,23 +187,24 @@ if __name__ == "__main__":
     model.compile(optimizer="adam",loss =tf.keras.losses.BinaryCrossentropy(from_logits=False),metrics=['accuracy'])
     #keras.utils.plot_model(model, "mini_resnet.png", show_shapes=True)
 
-    random.seed(356)
+    random.seed()
     random.shuffle(data)
+
 
     val_samples = 250
 
-    train_data = data[:-val_samples]
-    val_data = data[-val_samples:]
+    #train_data = data[:-val_samples]
+    #val_data = data[-val_samples:]
     print(f"Val data is {len(val_data)}")
     print(f"Train data is {len(train_data)}")
-    train_gen = Ikem_beat(1,train_data,1)
-    valid_gen = Ikem_beat(1,val_data,1)
+    train_gen = Ikem_beat(batch_size,train_data,1)
+    valid_gen = Ikem_beat(batch_size,val_data,1)
 
     callbacks = [
         keras.callbacks.ModelCheckpoint("callback_save.h5", save_best_only=True)
     ]
 
-    epochs = 30
+    epochs = 15
     history = model.fit(train_gen,validation_data =  valid_gen,epochs=epochs)
 
     model.save("final.h5")
