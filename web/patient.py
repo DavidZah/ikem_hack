@@ -31,7 +31,7 @@ class Patient:
         self.classification = None
         self.nlp = None
     
-    def __init__(self, csv_data, nlp_folder, xml_folder, save_xml=False):
+    def __init__(self, csv_data, nlp_folder, xml_folder, save_xml):
         self.classification = csv_data[1]
         self.identificator = csv_data[0]
         self.data = self.find_xml(self.identificator, xml_folder, ".xml")
@@ -39,16 +39,30 @@ class Patient:
             self.save_npy(npy_folder, self.identificator, self.data)
         self.nlp = self.find_file(self.identificator, nlp_folder, ".txt")
         self.type = self.get_type()
+    
+    def __init__(self, csv_data, nlp_folder, npy_folder) -> None:
+        self.classification = csv_data[1]
+        self.identificator = csv_data[0]
+        self.data = self.find_npy(self.identificator, npy_folder, ".npy")
+        self.nlp = self.find_file(self.identificator, nlp_folder, ".txt")
+        self.type = self.get_type()
 
     def get_type(self):
-        if self.nlp[0] == None and self.data[0][0] == None:
+        if self.nlp is None and self.data is None:
             return 3
-        elif self.nlp[0] != None and self.data[0][0] == None:
+        elif self.data is None:
             return 1
-        elif self.nlp[0] == None and self.data[0][0] != None:
+        elif self.nlp is None:
             return 2
         else:
             return 0
+
+    def find_npy(self, identificator, folder, extension):
+        dir_list = os.listdir(str(folder))
+        for id in range(len(dir_list)):
+            if identificator + extension == dir_list[id]:
+                return np.load(str(folder.joinpath(identificator + extension)))
+        return None
 
     def find_xml(self, identificator, folder, extension):
         dir_list = os.listdir(str(folder))
@@ -58,9 +72,9 @@ class Patient:
                 print(identificator + extension)
                 ret = parse_xml(str(folder.joinpath(identificator + extension)), stream)
                 if ret == None:
-                    return [[None]]
+                    return None
                 return generate_numpy(stream.getvalue())
-        return [[None]]
+        return None
     
     def find_file(self, identificator, folder, extension):
         dir_list = os.listdir(str(folder))
@@ -70,7 +84,7 @@ class Patient:
                 ret = f.read()
                 f.close()
                 return ret
-        return [None]
+        return None
 
     def import_data(self, npy_file, json_file):
         json_data = []
@@ -106,6 +120,13 @@ npy_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/npy")
 
 data = parse_csv_file(Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv"))   
 patients = []
-for i in data:
-    current_patient = Patient(i, nlp_folder, xml_folder, save_xml=True)
+one_counter = 0
+for i in range(len(data)):
+    print(i, "out of", len(data))
+    current_patient = Patient(data[i], nlp_folder, npy_folder)
     patients.append(current_patient)
+    print(current_patient.type)
+    if current_patient.type == 1:
+        one_counter +=1
+
+print(one_counter)
