@@ -118,7 +118,7 @@ def render_upload_template(arr):
     return render_template("upload.html", result=arr, errors=error_msgs(arr))
 
 def render_estimation_template(estimation):
-    return render_template("dead.html", result=["width:" + str(estimation) + "%", str(estimation)])
+    return render_template("result.html", result=estimation)
 
 
 
