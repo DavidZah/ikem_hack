@@ -38,8 +38,18 @@ class Patient:
         if self.data[0][0] != None and save_xml:
             self.save_npy(npy_folder, self.identificator, self.data)
         self.nlp = self.find_file(self.identificator, nlp_folder, ".txt")
+        self.type = self.get_type()
 
-    
+    def get_type(self):
+        if self.nlp[0] == None and self.data[0][0] == None:
+            return 3
+        elif self.nlp[0] != None and self.data[0][0] == None:
+            return 1
+        elif self.nlp[0] == None and self.data[0][0] != None:
+            return 2
+        else:
+            return 0
+
     def find_xml(self, identificator, folder, extension):
         dir_list = os.listdir(str(folder))
         for id in range(len(dir_list)):
@@ -62,12 +72,6 @@ class Patient:
                 return ret
         return [None]
 
-    def find_diagnosis(self, strin):
-        if strin[0:3] == "I35":
-            return 1
-        else:
-            return 0
-
     def import_data(self, npy_file, json_file):
         json_data = []
         f = json.load(open(json_file,'r'))
@@ -87,6 +91,7 @@ class Patient:
             if int(matcher) == int(arr[id][0]):
                 return arr[id][1]
         return -1
+
     def save_npy(self, npy_folder_path, patient, data):
         with open(str(npy_folder_path.joinpath(patient+".npy")), 'wb') as f:
             inp = data
@@ -98,8 +103,8 @@ csv_file = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv")
 nlp_folder =  Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/from_pdf")
 xml_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/MUSE_20211007_143634_97000")
 npy_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/npy")
-data = parse_csv_file(Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv"))   
 
+data = parse_csv_file(Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv"))   
 patients = []
 for i in data:
     current_patient = Patient(i, nlp_folder, xml_folder, save_xml=True)
