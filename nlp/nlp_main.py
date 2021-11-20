@@ -13,6 +13,8 @@ import pydot
 import os
 from patient import Patient
 from pathlib import Path
+import tensorflow_datasets as tfds
+
 os.environ["PATH"] += os.pathsep + 'C:\\Program Files\\Graphviz\\bin'
 
 
@@ -21,19 +23,15 @@ seed = 42
 max_features = 10000
 sequence_length = 250
 
+str = "Esenciální (primární) hypertenze"
+
 raw_train_ds = tf.keras.utils.text_dataset_from_directory(
-    'dataset',
+    "dataset\\train",
     batch_size=batch_size,
-    validation_split=0.2,
-    subset='training',
     seed=seed)
 
-raw_val_ds = tf.keras.utils.text_dataset_from_directory(
-    'dataset/val/',
-    batch_size=batch_size,
-    validation_split=0.2,
-    subset='validation',
-    seed=seed)
+
+
 
 def custom_standardization(input_data):
   lowercase = tf.strings.lower(input_data)
@@ -63,8 +61,9 @@ print("Vectorized review", vectorize_text(first_review, first_label))
 
 AUTOTUNE = tf.data.AUTOTUNE
 
-train_ds = raw_train_ds.map(vectorize_text)
-val_ds = raw_val_ds.map(vectorize_text)
+vec_lst = []
+ans_lst = []
+
 
 
 train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
