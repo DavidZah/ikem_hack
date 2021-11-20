@@ -16,74 +16,87 @@ from patient import Patient
 from pathlib import Path
 from sklearn.feature_extraction.text import CountVectorizer
 
-sentences = ["tohle je náhodná věta","tohle není náhodná věta"]
-target = [1,0]
-
-word_vec_size = (47431,1)
+word_vec_size = (1,47431)
 batch_size = 32
 
 class Ikem_npl(keras.utils.Sequence):
     """Helper to iterate over the data (as Numpy arrays)."""
 
-    def __init__(self, batch_size,data,model = 0):
+    def __init__(self, batch_size,data,vec_vocab,model = 0):
         self.sentences = None
         self.batch_size = batch_size
         self.source = data
         #0 combined 1 wave form 2 pdf
         self.model = model
+        self.vectorizer = vec_vocab
 
-        self.__filetr_items__()
-        self.__gen_vectored__()
-        print(len(self.vectorizer.vocabulary_))
 
     def __len__(self):
-       return 1
+       return len(self.source)//self.batch_size
 
     def __getitem__(self, idx):
-
-        x_2 = np.zeros((self.batch_size,) + word_vec_size, dtype="float32")
+        i = idx*batch_size
+        batch_input_data = self.source[i: i + self.batch_size]
+        x = np.zeros((self.batch_size,) + word_vec_size, dtype="float32")
         y = np.zeros((self.batch_size,) + (1,1), dtype="float32")
-
-        return x_2,y
-
-
-    def __filetr_items__(self):
-        oper_lst = []
-        for i in self.source:
-            if(i.type != 2):
-                oper_lst.append(i)
-        self.source = oper_lst
-
-    def __gen_vectored__(self):
-        self.vectorizer = CountVectorizer(min_df=0, lowercase=False)
-        self.sentences = []
-        for i in self.source:
-            x = i.nlp
-            self.sentences.append(x.decode("utf-8"))
-        self.vectorizer.fit(self.sentences)
-
-with open('../data/parrot.pkl', 'rb') as f:
-    data = pickle.load(f)
-
-npl = Ikem_npl(1,data)
+        for j, data in enumerate(batch_input_data):
+                string = data.nlp
+                string = string.decode("utf-8")
+                vec = self.vectorizer.transform([string]).toarray()
+                x[j] = vec
+                y[j] = data.classification
+        return x,y
 
 def get_DEM_ECGF_model():
     inputs = keras.Input(shape=word_vec_size, name="WORD_VEC")
-    x = layers.Dense(64)(inputs)
-    x = layers.Dense(64)(x)
-    x = layers.Dense(64)(x)
-    x = layers.Dense(64)(x)
-    x = layers.Dense(64)(x)
+    x = layers.Dense(256)(inputs)
+    x = layers.Dense(256)(x)
+    x = layers.Dense(256)(x)
+    x = layers.Dense(256)(x)
+    x = layers.Dense(256)(x)
     x = layers.Dense(1,activation="sigmoid")(x)
     model = keras.Model(inputs, x, name="DAVE_WORD_NET")
     return model
 
+def gen_vectored(data):
+    vectorizer = CountVectorizer(min_df=0, lowercase=False)
+    sentences = []
+    for i in data:
+        x = i.nlp
+        sentences.append(x.decode("utf-8"))
+    vectorizer.fit(sentences)
+    return vectorizer
+
+def filetr_items(data):
+    oper_lst = []
+    for i in data:
+        if(i.type != 2):
+            oper_lst.append(i)
+    return oper_lst
+
+if __name__ == "__main__":
+    with open('../data/parrot.pkl', 'rb') as f:
+        data = pickle.load(f)
+
+    data = filetr_items(data)
+    vectorizer = gen_vectored(data)
+
+    with open(Path('../data/nlp_vectorizer.pkl'), 'wb') as f:
+        pickle.dump(vectorizer, f)
+
+    val_samples = 1
+    train_data = data[:-val_samples]
+    val_data = data[-val_samples:]
 
 
-model = get_DEM_ECGF_model()
+    npl = Ikem_npl(batch_size,train_data,vectorizer)
+    npl_test = Ikem_npl(batch_size,val_data,vectorizer)
 
-model.compile(optimizer="adam", loss=tf.keras.losses.BinaryCrossentropy(from_logits=False), metrics=['accuracy'])
-model.fit(npl,epochs=10)
-print("done")
+    model = get_DEM_ECGF_model()
+
+    model.compile(optimizer="adam", loss=tf.keras.losses.BinaryCrossentropy(from_logits=False),metrics=['accuracy'])
+    model.fit(npl,validation_data = npl_test,epochs=10)
+    model.save(Path("../data/nlp_model.h5"))
+    print("done")
 
 

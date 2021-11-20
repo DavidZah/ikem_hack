@@ -113,17 +113,18 @@ class Patient:
             np.save(f, inp)
 
 
-csv_file = Path("data/dgs.csv")
-nlp_folder =  Path("data/from_pdf")
-xml_folder = Path("data/MUSE_20211007_143634_97000")
-npy_folder = Path("data/npy")
+if __name__ == "__main__":
+    csv_file = Path("data/dgs.csv")
+    nlp_folder =  Path("data/from_pdf")
+    xml_folder = Path("data/MUSE_20211007_143634_97000")
+    npy_folder = Path("data/npy")
 
-data = parse_csv_file(csv_file)
-patients = []
-for i in data:
-    current_patient = Patient(i, nlp_folder, npy_folder)
-    if(current_patient.type != 3):
-        patients.append(current_patient)
+    data = parse_csv_file(csv_file.absolute())
+    patients = []
+    for i in data:
+        current_patient = Patient(i, nlp_folder, npy_folder)
+        if(current_patient.type != 3):
+            patients.append(current_patient)
 
-with open('data/parrot.pkl', 'wb') as f:
-    pickle.dump(patients, f)
+    with open('data/parrot.pkl', 'wb') as f:
+        pickle.dump(patients, f)

@@ -2,12 +2,17 @@ from tensorflow import keras
 import tensorflow
 import numpy as np
 
-from layers_test import get_training_set
+from main_train import get_training_set
 
 
 class Predictor:
-    def __init__(self,model_path):
-        self.model = keras.models.load_model(model_path)
+    def __init__(self,xml_model_path,pdf_model_path):
+        self.xml_model = keras.models.load_model(xml_model_path)
+        self.pdf_model = keras.models.load_model(pdf_model_path)
+        self.vectorizer =
+
+    def load_vectoriter(self,path):
+
     def predict(self,patient):
         data = np.ndarray.transpose(patient.data)
 
