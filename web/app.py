@@ -20,7 +20,7 @@ pdf_file=""
 xml_file=""
 json_data = None
 
-xml_stream = StringIO()
+
 predictor = Predictor(str(Path("classifier/final.h5")),str(Path("classifier/nlp_model.h5")),str(Path("../data/nlp_vectorizer.pkl")))
 
 app = Flask(__name__)
@@ -62,13 +62,14 @@ def upload_file():
                 x = predictor.predict(patient)*100
                 os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
                 #DAVIDE TADY CONTENT JSOU TO NLP
-                return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
+                return render_estimation_template(x)
             else:
                 return render_upload_template([0,resPDF,0,0])
         if "UploadXML" in request.form:
             resXML = process_file(request, "fileXML", "xml")
             if resXML == 0:
                 xml_file = secure_filename(request.files["fileXML"].filename)
+                xml_stream = StringIO()
                 ret = parse_xml(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)), xml_stream)
                 if ret == None:
                     return render_template("upload.html", result=[2,0,0,0])
@@ -78,7 +79,6 @@ def upload_file():
                 print(patient.data)
                 x = predictor.predict(patient)*100
                 os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)))
-                xml_stream.truncate(0)
                 return render_estimation_template(x)
             else:
                 return render_upload_template([resXML,0,0,0])
@@ -87,6 +87,7 @@ def upload_file():
             if resPDF == 0:
                 resXML = process_file(request, "fileXML", "xml")
                 if resXML == 0:
+                    xml_stream = StringIO()
                     xml_file = secure_filename(request.files["fileXML"].filename)
                     pdf_file = secure_filename(request.files["filePDF"].filename)
                     ret = parse_xml(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)), xml_stream)
@@ -98,10 +99,9 @@ def upload_file():
                     patient.generate_from_pdf_and_ecg(content, np_data)
                     print(patient.data, patient.nlp)
                     x = predictor.predict(patient)*100
-                    xml_stream.truncate(0)
                     os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
                     os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)))
-                    return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
+                    return render_estimation_template(x)
                 else:
                     return render_upload_template([0,0,0,resXML])
             else:
