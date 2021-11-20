@@ -106,7 +106,10 @@ def generate_numpy(input):
 def parse_xml(file_path, output_string):
     prefix = file_path.split(os.sep)[-1].split(".")[0]
     if os.path.isfile(str(file_path)):
-        wave.process(file_path, output_string)
+        try:
+            wave.process(file_path, output_string)
+        except:
+            return None
         return prefix
     else:
         return None

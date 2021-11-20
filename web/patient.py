@@ -1,6 +1,22 @@
+from ast import parse
 import numpy as np
 import json
+import re
+import csv
+import os
+from utils import *
+from io import StringIO
+from pathlib import Path
+from csv_to_npy import *
+from xml.dom import minidom
 
+"""
+Patient:
+This class currently has three possible constructors that fit the three different ways in which we were building the training dataset during the hackathon
+The first takes the specific json_file with identificators and classifications and a npy_file that has fitting ECG data
+The second takes only the data - it is used for simple testing
+The final one takes a csv_file of the large data set and parses it to a readable 2D list, for each parsed identificator it looks for an xml file and an nlp file to upload data
+"""
 class Patient:
     def __init__(self, npy_file, json_file) -> None:
         self.data = self.import_data(npy_file, json_file)
@@ -14,6 +30,42 @@ class Patient:
         self.identificator = None
         self.classification = None
         self.nlp = None
+    
+    def __init__(self, csv_data, nlp_folder, xml_folder):
+        self.classification = csv_data[1]
+        self.identificator = csv_data[0]
+        self.data = self.find_xml(self.identificator, xml_folder, ".xml")
+        if self.data[0][0] != None:
+            self.save_npy(npy_folder, self.identificator, self.data)
+        #self.nlp = self.find_file(self.identificator, nlp_folder, ".txt")
+    
+    def find_xml(self, identificator, folder, extension):
+        dir_list = os.listdir(str(folder))
+        for id in range(len(dir_list)):
+            if identificator + extension == dir_list[id]:
+                stream = StringIO()
+                print(identificator + extension)
+                ret = parse_xml(str(folder.joinpath(identificator + extension)), stream)
+                if ret == None:
+                    return [[None]]
+                return generate_numpy(stream.getvalue())
+        return [[None]]
+    
+    def find_file(self, identificator, folder, extension):
+        dir_list = os.listdir(str(folder))
+        for id in range(len(dir_list)):
+            if identificator + extension == dir_list[id]:
+                f = open(str(folder.joinpath(identificator + extension)), 'rb')
+                ret = f.read()
+                f.close()
+                return ret
+        return None
+
+    def find_diagnosis(self, strin):
+        if strin[0:3] == "I35":
+            return 1
+        else:
+            return 0
 
     def import_data(self, npy_file, json_file):
         json_data = []
@@ -34,6 +86,57 @@ class Patient:
             if int(matcher) == int(arr[id][0]):
                 return arr[id][1]
         return -1
+    def save_npy(self, npy_folder_path, patient, data):
+        with open(str(npy_folder_path.joinpath(patient+".npy")), 'wb') as f:
+            inp = data
+            inp = np.transpose(inp)
+            np.save(f, inp)
 
-        
-            
+
+csv_file = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv")
+nlp_folder =  Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/from_pdf")
+xml_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/MUSE_20211007_143634_97000")
+npy_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/npy")
+data = parse_csv_file(Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv"))   
+
+#file_list = os.listdir(str(xml_folder))
+#new_file_list = os.listdir(str(xml_folder))
+#for i in file_list:
+#    doc = minidom.parse(str(xml_folder.joinpath(i)))
+#    patient_obj = doc.getElementsByTagName("PatientID")[0]
+#    patient_id = patient_obj.firstChild.data
+#    id = patient_id.replace("/", "")
+#    if id+".xml" not in new_file_list:
+#        os.rename(str(xml_folder.joinpath(i)), str(xml_folder.joinpath(id+".xml")))
+#        new_file_list = os.listdir(str(xml_folder))
+
+
+def save_npy(npy_folder_path, patient, data):
+    with open(str(npy_folder_path.joinpath(patient+".npy")), 'wb') as f:
+        inp = data
+        inp = np.transpose(inp)
+        np.save(f, inp)
+
+patients = []
+for i in data:
+    current_patient = Patient(i, nlp_folder, xml_folder)
+    patients.append(current_patient)
+#
+#new_patients = []
+#counter = 0
+#mega_counter = 0
+#for i in range(len(patients)):
+#    if not patients[i].data and not patients[i].nlp:
+#        pass
+#    else:
+#        try:
+#            save_npy(npy_folder, patients[i].identificator, patients[i].data)
+#        except:
+#            print("could not save xml")
+#        new_patients.append(patients[i])
+#        if not patients[i].data or not patients[i].nlp:
+#            mega_counter += 1
+#        counter += 1
+#print(counter)
+#print(mega_counter)
+#    
