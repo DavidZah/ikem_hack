@@ -1,68 +1,40 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
+<div class="container d-flex flex-column align-items-center">
+    <h1 class="">About</h1>
+    <br>
+    <h4 class="">The aortic stenosis risk calculator  </h4>
+    <br>
 
+    <img src="{{url_for('static', filename='aorta_check.svg')}}" class="img-fluid" style="width:40%" alt="..."/>
 
-<html lang="en">
-<head>
-    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" rel="stylesheet">
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<div class="container">
-    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-      <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none" href="/">
-        <svg class="bi me-2" height="32" width="40"><use xlink:href="#bootstrap"/></svg>
-        <span class="fs-4">HeartWave</span>
-      </a>
-
-      <ul class="nav nav-pills">
-        <li class="nav-item"><a aria-current="page" class="nav-link active" href="/">Loader</a></li>
-        <li class="nav-item"><a class="nav-link" href="/faq">FAQs</a></li>
-        <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-      </ul>
-    </header>
-  </div>
-<main>
-<div class="container">
-<div class="row row-cols-1 text-center">
-      <div class="col">
-        <div class="card mb-4 rounded-3 shadow-sm">
-          <div class="card-body">
-            <h1 class="card-title pricing-card-title">ABOUT</h1>
-            <br>
-            <h4 class="card-title pricing-card-title">The aortic stenosis risk calculator  </h4>
-            <br>
-            <div class="container">
-            <img src="{{url_for('static', filename='aorta_check.svg')}}" class="img-fluid" style="width:40%" alt="..."/>
-            </div>
-            <br>
-            <h4 class="card-title pricing-card-title">was created by the team  </h4>
-            <img src="{{url_for('static', filename='logo_team2.svg')}}" class="img-fluid" style="width:60%" alt="..."/>
-            <h4 class="card-title pricing-card-title">and it's members: </h4>
-            
-                <div class="container">
-                <div class="row aarow-cols-1 raow-cols-md-3 text-center p-5 justify-content-center">
-                        <div class="col-3 mb-4 rounded-3 h-100">
-                            <img src="{{url_for('static', filename='david.jpg')}}" class="rounded-circle ratio ratio-1x1 mx-auto d-block shadow-lg" style="width:75%"  alt="..."/>
-                            <h2>David Žahour</h2>
-                            <h2><small class="text-muted fw-light">AI Expert</small></h2>
-                        </div>
-            
-                        <div class="col-3 mb-4 rounded-3 h-100">
-                            <img src="{{url_for('static', filename='viktor.jpg')}}" class="rounded-circle ratio ratio-1x1 mx-auto d-block shadow-lg" style="width:75%" alt="..."/>
-                            <h2>Viktor Koropecký</h2>
-                            <h2><small class="text-muted fw-light">Data Engineer</small></h2>
-                        </div>
-                        <div class="col-3 mb-4 rounded-3 h-100">
-                            <img src="{{url_for('static', filename='simon.jpg')}}" class="rounded-circle ratio ratio-1x1 mx-auto d-block shadow-lg" style="width:75%" alt="..."/>
-                            <h2>Šimon Pavlín</h2>
-                            <h2><small class="text-muted fw-light">Graphic Designer</small></h2>
-                        </div>
-                </div>
-                </div>
-        </div>
-      </div>
-
-    </div>     
+    <br>
+    <h4 class="">was created by the team  </h4>
+    <div class="ps-5 d-flex justify-content-center">
+        <span class="bg-danger">
+            <img src="{{url_for('static', filename='logo_team2.svg')}}" class="img-fluid" style="width:40%" alt="..."/>
+        </span>
     </div>
-</main>
-</html>
+    <h4 class="">and it's members: </h4>
+    <div >
+    <div class="row aarow-cols-1 raow-cols-md-3 text-center p-5 justify-content-center">
+            <div class="col-12 col-lg-4 mb-4 rounded-3 h-100">
+                <img src="{{url_for('static', filename='david.jpg')}}" class="rounded-circle ratio ratio-1x1 mx-auto d-block shadow-lg" style="width:75%;  max-width: 300px"  alt="..."/>
+                <h2 class="pt-2">David Žahour</h2>
+                <h2><small class="text-muted fw-light">AI Expert</small></h2>
+            </div>
+
+            <div class="col-12 col-lg-4 mb-4 rounded-3 h-100">
+                <img src="{{url_for('static', filename='viktor.jpg')}}" class="rounded-circle ratio ratio-1x1 mx-auto d-block shadow-lg" style="width:75%; max-width: 300px" alt="..."/>
+                <h2 class="pt-2">Viktor Koropecký</h2>
+                <h2><small class="text-muted fw-light">Data Engineer</small></h2>
+            </div>
+            <div class="col-12 col-lg-4 mb-4 rounded-3 h-100">
+                <img src="{{url_for('static', filename='simon.jpg')}}" class="rounded-circle ratio ratio-1x1 mx-auto d-block shadow-lg" style="width:75%;  max-width: 300px" alt="..."/>
+                <h2 class="pt-2">Šimon Pavlín</h2>
+                <h2><small class="text-muted fw-light">Graphic Designer</small></h2>
+            </div>
+    </div>
+    </div>
+</div>
+{% endblock %}
