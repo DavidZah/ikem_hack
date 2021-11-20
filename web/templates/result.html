@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+<div class="text-center">
+    <h1 class="my-0 fw-normal fw-bold">Results</h1>
+
+    <div class="card-title pricing-card-title fs-2 pt-4">
+        <small class="text-muted fw-light">Estimated risk factor of aortic stenosis:</small>
+    </div>
+    <div class="d-flex justify-content-center py-0 ">
+        <div styles="font-size: 50px;" class="display-1 fw-bold pb-4 m-0 lh-1">
+            {{result}}%
+        </div>
+    </div>
+
+    {% if True %}
+    <div class="progress">
+        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ result }}%" aria-valuenow="{{ result }}" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    {% endif %}
+
+    <div class="pt-3">
+        <h5>What is s? 42</h5>
+    </div>
+
+</div>
+</div>
+{% endblock %}
