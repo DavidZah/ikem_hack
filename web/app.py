@@ -70,9 +70,9 @@ def upload_file():
             resPDF = process_file(request, "filePDF", "pdf")
             if resPDF == 0:
                 x = do_ai_magic()
-                return render_template("upload.html", result=[0,3,0,0])
+                return render_upload_template([0,3,0,0])
             else:
-                return render_template("upload.html", result=[0,resPDF,0,0])
+                return render_upload_template([0,resPDF,0,0])
         if "UploadXML" in request.form:
             resXML = process_file(request, "fileXML", "xml")
             if resXML == 0:
@@ -89,9 +89,9 @@ def upload_file():
                 #x = predictor.predict(patient)*100
                 x = do_ai_magic()
                 xml_stream.truncate(0)
-                return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
+                return render_estimation_template(x)
             else:
-                return render_template("upload.html", result=[resXML,0,0,0])
+                return render_upload_template([resXML,0,0,0])
         if "UploadBOTH" in request.form:
             resPDF = process_file(request, "filePDF", "pdf")
             if resPDF == 0:
@@ -100,18 +100,57 @@ def upload_file():
                     xml_file = secure_filename(request.files["fileXML"].filename)
                     ret = parse_xml(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)), xml_stream)
                     if ret == None:
-                        return render_template("upload.html", result=[2,0,0,0])
+                        return render_upload_template([2,0,0,0])
                     np_data = generate_numpy(xml_stream.getvalue())
                     patient = Patient(np_data)
                     #x = predictor.predict(patient)
                     x = do_ai_magic()
                     xml_stream.truncate(0)
-                    return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
+                    return render_estimation_template(x)
                 else:
-                    return render_template("upload.html", result=[0,0,0,resXML])
+                    return render_upload_template([0,0,0,resXML])
             else:
-                return render_template("upload.html", result=[0,0,resPDF,0])
-    return render_template('upload.html', result=[0,0,0,0])
+                return render_upload_template([0,0,resPDF,0])
+    return render_upload_template([0,0,0,0])
+
+
+def render_upload_template(arr):
+    return render_template("upload.html", result=arr, errors=error_msgs(arr))
+
+def render_estimation_template(estimation):
+    return render_template("dead.html", result=["width:" + str(estimation) + "%", str(estimation)])
+
+
+
+
+def error_msgs(result): #[[0,0,0,0]]
+    errors = [None, None, None, None]
+    if result[0] == 1:
+        errors[0] = "You first need to select a file!"
+    if result[0] == 2:
+        errors[0] = "You selected an invalid file!!"
+
+    if result[1] == 1:
+        errors[1] = "You first need to select a file!"
+    if result[1] == 2:
+        errors[1] = "You selected an invalid file!"
+    if result[1] == 3:
+        errors[1] = "Detection from medical report only is not yet implemented!"
+
+    if result[2] == 1:
+        errors[2] = "You first need to select a PDF file!"
+    if result[2] == 2:
+        errors[2] = "You selected an invalid PDF file!"
+
+    if result[3] == 1:
+        errors[2] = "You first need to select an XML file!"
+    if result[3] == 2:
+        errors[2] = "You selected an invalid XML file!"
+
+
+    return errors
+
+
 
 @app.route("/faq", methods=["GET", "POST"])
 def display_faq():

@@ -18,17 +18,14 @@ The second takes only the data - it is used for simple testing
 The final one takes a csv_file of the large data set and parses it to a readable 2D list, for each parsed identificator it looks for an xml file and an nlp file to upload data
 """
 class Patient:
+
+
+
     def __init__(self, npy_file, json_file) -> None:
         self.data = self.import_data(npy_file, json_file)
         self.identificator = self.data[0]
         self.classification = self.data[1]
         self.ecg = self.data[2]
-        self.nlp = None
-    
-    def __init__(self, data) -> None:
-        self.data = data
-        self.identificator = None
-        self.classification = None
         self.nlp = None
     
     def __init__(self, csv_data, nlp_folder, xml_folder, save_xml=False):
@@ -39,6 +36,12 @@ class Patient:
             self.save_npy(npy_folder, self.identificator, self.data)
         self.nlp = self.find_file(self.identificator, nlp_folder, ".txt")
         self.type = self.get_type()
+
+    def __init__(self, data) -> None:
+        self.data = data
+        self.identificator = None
+        self.classification = None
+        self.nlp = None
 
     def get_type(self):
         if self.nlp[0] == None and self.data[0][0] == None:
