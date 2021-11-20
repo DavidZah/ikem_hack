@@ -9,7 +9,7 @@ from io import StringIO
 from pathlib import Path
 from csv_to_npy import *
 from xml.dom import minidom
-
+import pickle
 """
 Patient:
 This class currently has three possible constructors that fit the three different ways in which we were building the training dataset during the hackathon
@@ -31,7 +31,7 @@ class Patient:
         self.classification = None
         self.nlp = None
     
-    def __init__(self, csv_data, nlp_folder, xml_folder, save_xml):
+    def __init__(self, csv_data, nlp_folder, xml_folder, save_xml=False):
         self.classification = csv_data[1]
         self.identificator = csv_data[0]
         self.data = self.find_xml(self.identificator, xml_folder, ".xml")
@@ -39,7 +39,7 @@ class Patient:
             self.save_npy(npy_folder, self.identificator, self.data)
         self.nlp = self.find_file(self.identificator, nlp_folder, ".txt")
         self.type = self.get_type()
-    
+
     def __init__(self, csv_data, nlp_folder, npy_folder) -> None:
         self.classification = csv_data[1]
         self.identificator = csv_data[0]
@@ -113,20 +113,17 @@ class Patient:
             np.save(f, inp)
 
 
-csv_file = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv")
-nlp_folder =  Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/from_pdf")
-xml_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/MUSE_20211007_143634_97000")
-npy_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/npy")
+csv_file = Path("../data/dgs.csv")
+nlp_folder =  Path("../data/from_pdf")
+xml_folder = Path("../data/MUSE_20211007_143634_97000")
+npy_folder = Path("../data/npy")
 
-data = parse_csv_file(Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv"))   
+data = parse_csv_file(csv_file)
 patients = []
-one_counter = 0
-for i in range(len(data)):
-    print(i, "out of", len(data))
-    current_patient = Patient(data[i], nlp_folder, npy_folder)
-    patients.append(current_patient)
-    print(current_patient.type)
-    if current_patient.type == 1:
-        one_counter +=1
+for i in data:
+    current_patient = Patient(i, nlp_folder, npy_folder)
+    if(current_patient.type != 3):
+        patients.append(current_patient)
 
-print(one_counter)
+with open('../data/parrot.pkl', 'wb') as f:
+    pickle.dump(patients, f)

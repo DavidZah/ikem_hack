@@ -1,3 +1,4 @@
+import pickle
 import re
 import string
 
@@ -53,7 +54,8 @@ class Ikem_npl(keras.utils.Sequence):
         x_2 = ["str"]
         return x_2,y
 
-
+with open('../data/parrot.pkl', 'rb') as f:
+    data = pickle.load(f)
 
 vectorize_layer = layers.TextVectorization(
     max_tokens=max_features,
