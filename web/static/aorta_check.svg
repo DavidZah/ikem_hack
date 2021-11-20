@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="67.678589mm"
+   height="18.070166mm"
+   viewBox="0 0 67.678589 18.070165"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="aorta_check.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="2.4088664"
+     inkscape:cx="216.907"
+     inkscape:cy="58.533756"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-22.946579,-180.24194)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="22.894903"
+       y="188.07607"
+       id="text4206-8-8-6-42-6-2-3-2-9"><tspan
+         sodipodi:role="line"
+         id="tspan4204-1-1-1-9-0-2-7-9-1"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Microsoft New Tai Lue';-inkscape-font-specification:'Microsoft New Tai Lue Bold';opacity:0.92;fill:#ff0000;fill-opacity:1;stroke-width:0.264583"
+         x="22.894903"
+         y="188.07607">Aorta</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="60.854473"
+       y="188.07607"
+       id="text4206-8-8-6-8-0-2-2-9-8-8"><tspan
+         sodipodi:role="line"
+         id="tspan4204-1-1-1-7-3-0-2-9-1-1"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Microsoft New Tai Lue';-inkscape-font-specification:'Microsoft New Tai Lue Bold';opacity:0.92;fill:#ff0000;fill-opacity:1;stroke-width:0.264583"
+         x="60.854473"
+         y="188.07607"><tspan
+           style="fill:#4a73de;fill-opacity:1"
+           id="tspan130064-4-9-3-7-4-6-3">Check</tspan></tspan></text>
+    <path
+       style="fill:none;stroke:#ff0000;stroke-width:1.134;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 37.399263,189.77849 13.991447,-0.056 1.23073,-2.18251 2.28004,10.20536 2.91292,-16.45001 1.25762,10.05043 1.6261,-1.43286 15.643273,-0.0633"
+       id="path161994-9-0-6-7-0-2-0"
+       sodipodi:nodetypes="cccccccc" />
+  </g>
+</svg>
