@@ -204,7 +204,7 @@ if __name__ == "__main__":
         keras.callbacks.ModelCheckpoint("callback_save.h5", save_best_only=True)
     ]
 
-    epochs = 15
+    epochs = 5
     history = model.fit(train_gen,validation_data =  valid_gen,epochs=epochs)
 
     model.save("final.h5")

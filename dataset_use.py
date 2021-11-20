@@ -14,5 +14,5 @@ class Predictor:
         return x
 
 x = get_training_set("data\\class2.json","data\\npy\\")
-pred = Predictor("final.h5")
+pred = Predictor("web/classifier/final.h5")
 print(pred.predict(x[0]))
