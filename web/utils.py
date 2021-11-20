@@ -101,7 +101,6 @@ def generate_numpy(input):
         for j in range(len(data[i])):
             data[i][j] = int(data[i][j].strip())
     np_data = np.array(data)
-    print(np_data)
     return np_data
 
 def parse_xml(file_path, output_string):
