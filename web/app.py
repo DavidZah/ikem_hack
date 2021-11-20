@@ -11,18 +11,19 @@ from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 import random
 from io import StringIO
-from dataset_use import Predictor
+#from dataset_use import Predictor
 from utils import *
 from patient import Patient
 
-UPLOAD_FOLDER = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/ikem_hack/web/tmp")
-BACKUP_FOLDER = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/ikem_hack/web/npy/")
+
+UPLOAD_FOLDER = Path("tmp")
+BACKUP_FOLDER = Path("npy/")
 pdf_file=""
 xml_file=""
 json_data = None
 
 xml_stream = StringIO()
-predictor = Predictor(str(Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/ikem_hack/web/classifier/final.h5")))
+#predictor = Predictor(str(Path("classifier/final.h5")))
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -80,7 +81,7 @@ def upload_file():
                 np_data = generate_numpy(xml_stream.getvalue())
                 save_npy(BACKUP_FOLDER, ret, np_data)
                 patient = Patient(np_data)
-                x = predictor.predict(patient)
+                #x = predictor.predict(patient)
                 return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
             else:
                 return render_template("upload.html", result=[resXML,0,0,0])
@@ -95,7 +96,7 @@ def upload_file():
                         return render_template("upload.html", result=[2,0,0,0])
                     np_data = generate_numpy(xml_stream.getvalue())
                     patient = Patient(np_data)
-                    x = predictor.predict(patient)
+                    #x = predictor.predict(patient)
                     return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
                 else:
                     return render_template("upload.html", result=[0,0,0,resXML])
