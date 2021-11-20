@@ -2,20 +2,30 @@ import io
 from datetime import date
 from flask import send_from_directory
 
+from dataset_use import Predictor
+
 today = date.today()
 from flask import Flask, redirect, url_for, request, send_file, render_template
 
-
-
 import os
+from pathlib import Path
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 import random
+from io import StringIO
+from dataset_use import Predictor
+from utils import *
+from patient import Patient
 
 
-UPLOAD_FOLDER = 'C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/ikem_hack/web/tmp'
+UPLOAD_FOLDER = Path("tmp")
+BACKUP_FOLDER = Path("npy/")
 pdf_file=""
 xml_file=""
+json_data = None
+
+xml_stream = StringIO()
+predictor = Predictor(str(Path("classifier/final.h5")))
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -48,7 +58,7 @@ def process_file(request, filename, extension):
         return 2
     else:
         pdf_file = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], pdf_file))
+        file.save(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
         return 0
 
 @app.route('/', methods=['GET', 'POST'])
@@ -60,13 +70,24 @@ def upload_file():
             resPDF = process_file(request, "filePDF", "pdf")
             if resPDF == 0:
                 x = do_ai_magic()
-                return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
+                return render_template("upload.html", result=[0,3,0,0])
             else:
                 return render_template("upload.html", result=[0,resPDF,0,0])
         if "UploadXML" in request.form:
             resXML = process_file(request, "fileXML", "xml")
             if resXML == 0:
-                x = do_ai_magic()
+                xml_file = secure_filename(request.files["fileXML"].filename)
+                ret = parse_xml(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)), xml_stream)
+                if ret == None:
+                    return render_template("upload.html", result=[2,0,0,0])
+                np_data = generate_numpy(xml_stream.getvalue())
+                save_npy(BACKUP_FOLDER, ret, np_data)
+
+
+                patient = Patient(np_data)
+
+                x = predictor.predict(patient)*100
+                xml_stream.truncate(0)
                 return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
             else:
                 return render_template("upload.html", result=[resXML,0,0,0])
@@ -75,25 +96,20 @@ def upload_file():
             if resPDF == 0:
                 resXML = process_file(request, "fileXML", "xml")
                 if resXML == 0:
-                    x = do_ai_magic()
+                    xml_file = secure_filename(request.files["fileXML"].filename)
+                    ret = parse_xml(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)), xml_stream)
+                    if ret == None:
+                        return render_template("upload.html", result=[2,0,0,0])
+                    np_data = generate_numpy(xml_stream.getvalue())
+                    patient = Patient(np_data)
+                    x = predictor.predict(patient)
+                    xml_stream.truncate(0)
                     return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
                 else:
                     return render_template("upload.html", result=[0,0,0,resXML])
             else:
                 return render_template("upload.html", result=[0,0,resPDF,0])
     return render_template('upload.html', result=[0,0,0,0])
-
-@app.route('/xmlresult', methods=['GET', 'POST'])
-def upload_xml():
-    pass
-
-@app.route('/preciseresult', methods=['GET', 'POST'])
-def upload_precise():
-    pass
-
-
-
-
 
 def run(port=8000):
     app.run(debug=False, host='0.0.0.0', port=port)
