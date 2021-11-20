@@ -99,13 +99,13 @@ class Patient:
             np.save(f, inp)
 
 
-csv_file = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv")
-nlp_folder =  Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/from_pdf")
-xml_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/MUSE_20211007_143634_97000")
-npy_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/npy")
-
-data = parse_csv_file(Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv"))   
-patients = []
-for i in data:
-    current_patient = Patient(i, nlp_folder, xml_folder, save_xml=True)
-    patients.append(current_patient)
+#csv_file = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv")
+#nlp_folder =  Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/from_pdf")
+#xml_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/MUSE_20211007_143634_97000")
+#npy_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/npy")
+#
+#data = parse_csv_file(Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv"))   
+#patients = []
+#for i in data:
+#    current_patient = Patient(i, nlp_folder, xml_folder, save_xml=True)
+#    patients.append(current_patient)

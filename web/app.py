@@ -2,7 +2,7 @@ import io
 from datetime import date
 from flask import send_from_directory
 
-from dataset_use import Predictor
+#from dataset_use import Predictor
 
 today = date.today()
 from flask import Flask, redirect, url_for, request, send_file, render_template
@@ -13,7 +13,7 @@ from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 import random
 from io import StringIO
-from dataset_use import Predictor
+#from dataset_use import Predictor
 from utils import *
 from patient import Patient
 
@@ -25,7 +25,7 @@ xml_file=""
 json_data = None
 
 xml_stream = StringIO()
-predictor = Predictor(str(Path("classifier/final.h5")))
+#predictor = Predictor(str(Path("classifier/final.h5")))
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -86,7 +86,8 @@ def upload_file():
 
                 patient = Patient(np_data)
 
-                x = predictor.predict(patient)*100
+                #x = predictor.predict(patient)*100
+                x = do_ai_magic()
                 xml_stream.truncate(0)
                 return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
             else:
@@ -102,7 +103,8 @@ def upload_file():
                         return render_template("upload.html", result=[2,0,0,0])
                     np_data = generate_numpy(xml_stream.getvalue())
                     patient = Patient(np_data)
-                    x = predictor.predict(patient)
+                    #x = predictor.predict(patient)
+                    x = do_ai_magic()
                     xml_stream.truncate(0)
                     return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
                 else:
