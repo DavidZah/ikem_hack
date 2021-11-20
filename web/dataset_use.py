@@ -5,14 +5,21 @@ from tensorflow import keras
 import tensorflow
 import numpy as np
 
-from main_train import get_training_set
+from main_train import get_training_set, complete_model
 
 
 class Predictor:
-    def __init__(self,xml_model_path,pdf_model_path,vectorizer_path):
+    def __init__(self,xml_model_path,pdf_model_path,vectorizer_path,nlp_pdf_weights):
         self.xml_model = keras.models.load_model(xml_model_path)
         self.pdf_model = keras.models.load_model(pdf_model_path)
+        self.pdf_nlp_model = complete_model()
+        self.pdf_nlp_model.load_weights(nlp_pdf_weights)
         self.vectorizer = self.load_vectoriter(vectorizer_path)
+
+    def load_pickle(self,path):
+        with open(path, 'rb') as f:
+            data = pickle.load(f)
+        return data
 
     def load_vectoriter(self,path):
         with open(path, 'rb') as f:
@@ -36,7 +43,16 @@ class Predictor:
             x = x[0][0][0]
             return x
         if(patient.type == 0):
-            raise NotImplemented
+            string = patient.nlp
+            # string = string.decode("utf-8")
+            vec = self.vectorizer.transform([string]).toarray()
+            x_1 = np.expand_dims(vec, axis=0)
+
+            data = np.ndarray.transpose(patient.data)
+
+            x_2 = np.expand_dims(data, axis=0)
+            y =self.pdf_nlp_model.predict(x_1,x_2)
+            return y
 
 
 if __name__ == "__main__":

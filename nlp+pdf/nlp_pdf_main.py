@@ -102,7 +102,7 @@ def filetr_items(data):
 word_vec_size = (1,47195)
 ECG_model_shape = (12,5000,1)
 
-batch_size = 32
+batch_size = 16
 
 
 
@@ -126,6 +126,6 @@ if __name__ == "__main__":
 
     model = complete_model()
     model.compile(optimizer="adam", loss=tf.keras.losses.BinaryCrossentropy(from_logits=False), metrics=['accuracy'])
-    model.fit(npl, validation_data=npl_test, epochs=10)
-    model.save(Path("../data/nlp_model.h5"))
+    model.fit(npl, validation_data=npl_test, epochs=2)
+    model.save_weights('../web/classifier/pdf_nlp.h5')
     print("done")

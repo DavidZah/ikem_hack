@@ -21,7 +21,7 @@ xml_file=""
 json_data = None
 
 
-predictor = Predictor(str(Path("classifier/final.h5")),str(Path("classifier/nlp_model.h5")),str(Path("../data/nlp_vectorizer.pkl")))
+predictor = Predictor(str(Path("classifier/final.h5")),str(Path("classifier/nlp_model.h5")),str(Path("../data/nlp_vectorizer.pkl")),str(Path("classifier/pdf_nlp.h5").absolute()))
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
