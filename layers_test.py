@@ -9,7 +9,7 @@ import numpy as np
 import pydot
 import os
 from patient import Patient
-
+from pathlib import Path
 os.environ["PATH"] += os.pathsep + 'C:\\Program Files\\Graphviz\\bin'
 
 
@@ -43,7 +43,7 @@ class Ikem_beat(keras.utils.Sequence):
 
 
     def __len__(self):
-       return len(data) // self.batch_size
+       return len(self.source) // self.batch_size
 
     def __getitem__(self, idx):
         i = idx * self.batch_size
@@ -75,9 +75,9 @@ def get_DEM_ECGF_model():
 
 def get_ECG_model():
     inputs = keras.Input(shape=ECG_model_shape, name="ECG")
-    x = layers.Conv2D(64, 1, activation="relu")(inputs)
+    x = layers.Conv2D(64, 2, activation="relu")(inputs)
     x = layers.BatchNormalization()(x)
-    x = layers.Conv2D(64, 1, activation="relu")(x)
+    x = layers.Conv2D(64, 2, activation="relu")(x)
     x = layers.BatchNormalization()(x)
     #Dot know pool size
     x = layers.MaxPooling2D(
@@ -91,7 +91,7 @@ def get_wave_form_model():
 
     x = layers.Dense(64)(block_1_output)
     x = layers.Dense(64)(x)
-    output = layers.Dense(1,activation="softmax")(x)
+    output = layers.Dense(1,activation="sigmoid")(x)
     model = keras.Model(inputs_ECG, output, name="DAVE_NEURON_NET")
     return model
 
@@ -113,7 +113,7 @@ def mega_cool_neural_net():
 
     gap = keras.layers.GlobalAveragePooling1D()(conv3)
 
-    output_layer = keras.layers.Dense(1, activation="softmax")(gap)
+    output_layer = keras.layers.Dense(1, activation="sigmoid")(gap)
 
     return keras.models.Model(inputs=inputs, outputs=output_layer)
 
@@ -126,13 +126,14 @@ def complete_model():
     block_1_fin = layers.add([block_1_output,block_2_output])
     x = layers.Dense(32)(block_1_fin)
     x = layers.Dense(32)(x)
-    output = layers.Dense(1,activation="softmax")(x)
+    output = layers.Dense(1,activation="sigmoid")(x)
     model = keras.Model([inputs_DEM,inputs_ECG],output,name="DAVE_NEURON_NET")
     return model
 
+
 if __name__ == "__main__":
 
-    data = get_training_set("data/class2.json","data/npy/")
+    data = get_training_set(str(Path("data/class2.json")),str(Path("data/npy/")))
 
     #model = complete_model()
     model = get_wave_form_model()
@@ -141,18 +142,23 @@ if __name__ == "__main__":
     model.compile(optimizer="adam",loss =tf.keras.losses.BinaryCrossentropy(from_logits=False),metrics=['accuracy'])
     #keras.utils.plot_model(model, "mini_resnet.png", show_shapes=True)
 
-    random.seed(123)
+    random.seed(356)
     random.shuffle(data)
 
-    val_samples = 50
-    train_gen = Ikem_beat(1,data[:-val_samples],1)
-    valid_gen = Ikem_beat(1,data[-val_samples:],1)
+    val_samples = 250
+
+    train_data = data[:-val_samples]
+    val_data = data[-val_samples:]
+    print(f"Val data is {len(val_data)}")
+    print(f"Train data is {len(train_data)}")
+    train_gen = Ikem_beat(1,train_data,1)
+    valid_gen = Ikem_beat(1,val_data,1)
 
     callbacks = [
         keras.callbacks.ModelCheckpoint("callback_save.h5", save_best_only=True)
     ]
 
-    epochs = 1
+    epochs = 30
     history = model.fit(train_gen,validation_data =  valid_gen,epochs=epochs)
 
     model.save("final.h5")

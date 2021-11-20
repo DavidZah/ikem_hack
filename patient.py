@@ -16,7 +16,7 @@ class Patient:
             json_data.append(row)
         with open(npy_file, 'rb') as f:
             ecg = np.load(f)
-        identificator = npy_file.split('\\')[-1]
+        identificator = npy_file.split('/')[-1]
         identificator = identificator.split('.')[0]
         classification = self.find_classification(identificator, json_data)
         if classification == -1:
