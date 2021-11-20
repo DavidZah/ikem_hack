@@ -1,3 +1,4 @@
+import pickle
 import re
 import string
 
@@ -13,80 +14,89 @@ import pydot
 import os
 from patient import Patient
 from pathlib import Path
-import tensorflow_datasets as tfds
+from sklearn.feature_extraction.text import CountVectorizer
 
-os.environ["PATH"] += os.pathsep + 'C:\\Program Files\\Graphviz\\bin'
-
-
+word_vec_size = (1,47431)
 batch_size = 32
-seed = 42
-max_features = 10000
-sequence_length = 250
 
-str = "Esenciální (primární) hypertenze"
+class Ikem_npl(keras.utils.Sequence):
+    """Helper to iterate over the data (as Numpy arrays)."""
 
-raw_train_ds = tf.keras.utils.text_dataset_from_directory(
-    "dataset\\train",
-    batch_size=batch_size,
-    seed=seed)
-
-
-
-
-def custom_standardization(input_data):
-  lowercase = tf.strings.lower(input_data)
-  stripped_html = tf.strings.regex_replace(lowercase, '<br />', ' ')
-  return tf.strings.regex_replace(stripped_html,
-                                  '[%s]' % re.escape(string.punctuation),
-                                  '')
+    def __init__(self, batch_size,data,vec_vocab,model = 0):
+        self.sentences = None
+        self.batch_size = batch_size
+        self.source = data
+        #0 combined 1 wave form 2 pdf
+        self.model = model
+        self.vectorizer = vec_vocab
 
 
-vectorize_layer = layers.TextVectorization(
-    standardize=custom_standardization,
-    max_tokens=max_features,
-    output_mode='int',
-    output_sequence_length=sequence_length)
+    def __len__(self):
+       return len(self.source)//self.batch_size
 
-train_text = raw_train_ds.map(lambda x, y: x)
-vectorize_layer.adapt(train_text)
-def vectorize_text(text, label):
-  text = tf.expand_dims(text, -1)
-  return vectorize_layer(text), label
+    def __getitem__(self, idx):
+        i = idx*batch_size
+        batch_input_data = self.source[i: i + self.batch_size]
+        x = np.zeros((self.batch_size,) + word_vec_size, dtype="float32")
+        y = np.zeros((self.batch_size,) + (1,1), dtype="float32")
+        for j, data in enumerate(batch_input_data):
+                string = data.nlp
+                string = string.decode("utf-8")
+                vec = self.vectorizer.transform([string]).toarray()
+                x[j] = vec
+                y[j] = data.classification
+        return x,y
 
-text_batch, label_batch = next(iter(raw_train_ds))
-first_review, first_label = text_batch[0], label_batch[0]
-print("Review", first_review)
-print("Label", raw_train_ds.class_names[first_label])
-print("Vectorized review", vectorize_text(first_review, first_label))
+def get_DEM_ECGF_model():
+    inputs = keras.Input(shape=word_vec_size, name="WORD_VEC")
+    x = layers.Dense(256)(inputs)
+    x = layers.Dense(256)(x)
+    x = layers.Dense(256)(x)
+    x = layers.Dense(256)(x)
+    x = layers.Dense(256)(x)
+    x = layers.Dense(1,activation="sigmoid")(x)
+    model = keras.Model(inputs, x, name="DAVE_WORD_NET")
+    return model
 
-AUTOTUNE = tf.data.AUTOTUNE
+def gen_vectored(data):
+    vectorizer = CountVectorizer(min_df=0, lowercase=False)
+    sentences = []
+    for i in data:
+        x = i.nlp
+        sentences.append(x.decode("utf-8"))
+    vectorizer.fit(sentences)
+    return vectorizer
 
-vec_lst = []
-ans_lst = []
+def filetr_items(data):
+    oper_lst = []
+    for i in data:
+        if(i.type != 2):
+            oper_lst.append(i)
+    return oper_lst
+
+if __name__ == "__main__":
+    with open('../data/parrot.pkl', 'rb') as f:
+        data = pickle.load(f)
+
+    data = filetr_items(data)
+    vectorizer = gen_vectored(data)
+
+    with open(Path('../data/nlp_vectorizer.pkl'), 'wb') as f:
+        pickle.dump(vectorizer, f)
+
+    val_samples = 1
+    train_data = data[:-val_samples]
+    val_data = data[-val_samples:]
 
 
+    npl = Ikem_npl(batch_size,train_data,vectorizer)
+    npl_test = Ikem_npl(batch_size,val_data,vectorizer)
 
-train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
-val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+    model = get_DEM_ECGF_model()
 
-embedding_dim = 16
+    model.compile(optimizer="adam", loss=tf.keras.losses.BinaryCrossentropy(from_logits=False),metrics=['accuracy'])
+    model.fit(npl,validation_data = npl_test,epochs=10)
+    model.save(Path("../data/nlp_model.h5"))
+    print("done")
 
-model = tf.keras.Sequential([
-  layers.Embedding(max_features + 1, embedding_dim),
-  layers.Dropout(0.2),
-  layers.GlobalAveragePooling1D(),
-  layers.Dropout(0.2),
 
-  layers.Dense(1)])
-
-model.summary()
-
-model.compile(loss=losses.BinaryCrossentropy(from_logits=True),
-              optimizer='adam',
-              metrics=tf.metrics.BinaryAccuracy(threshold=0.0))
-
-epochs = 10
-history = model.fit(
-    train_ds,
-    validation_data=val_ds,
-    epochs=epochs)
