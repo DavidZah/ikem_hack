@@ -100,44 +100,7 @@ xml_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/MUSE_20211
 npy_folder = Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/npy")
 data = parse_csv_file(Path("C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/dgs.csv"))   
 
-#file_list = os.listdir(str(xml_folder))
-#new_file_list = os.listdir(str(xml_folder))
-#for i in file_list:
-#    doc = minidom.parse(str(xml_folder.joinpath(i)))
-#    patient_obj = doc.getElementsByTagName("PatientID")[0]
-#    patient_id = patient_obj.firstChild.data
-#    id = patient_id.replace("/", "")
-#    if id+".xml" not in new_file_list:
-#        os.rename(str(xml_folder.joinpath(i)), str(xml_folder.joinpath(id+".xml")))
-#        new_file_list = os.listdir(str(xml_folder))
-
-
-def save_npy(npy_folder_path, patient, data):
-    with open(str(npy_folder_path.joinpath(patient+".npy")), 'wb') as f:
-        inp = data
-        inp = np.transpose(inp)
-        np.save(f, inp)
-
 patients = []
 for i in data:
-    current_patient = Patient(i, nlp_folder, xml_folder)
+    current_patient = Patient(i, nlp_folder, xml_folder, save_xml=True)
     patients.append(current_patient)
-#
-#new_patients = []
-#counter = 0
-#mega_counter = 0
-#for i in range(len(patients)):
-#    if not patients[i].data and not patients[i].nlp:
-#        pass
-#    else:
-#        try:
-#            save_npy(npy_folder, patients[i].identificator, patients[i].data)
-#        except:
-#            print("could not save xml")
-#        new_patients.append(patients[i])
-#        if not patients[i].data or not patients[i].nlp:
-#            mega_counter += 1
-#        counter += 1
-#print(counter)
-#print(mega_counter)
-#    
