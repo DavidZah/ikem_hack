@@ -32,9 +32,16 @@
             <h2 class="card-title pricing-card-title"><small class="text-muted fw-light">Upload cardio XML for analys</small></h2>
             <ul class="list-unstyled mt-3 mb-4">
              <form enctype=multipart/form-data method=post>
-                 <input type="file" name = "file" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                 <input type="file" name = "fileXML" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
                 <br>
-                 <input type=submit value=Upload class="btn btn-primary btn-lg btn-block">
+                {% if result[0] == 1 %}
+                <h4 class="my-0 fw-normal">You first need to select a file!</h4>
+                {% endif %}
+                {% if result[0] == 2 %}
+                <h4 class="my-0 fw-normal">You selected an invalid file!</h4>
+                {% endif %}
+                <br>
+                 <input type="submit" name="UploadXML" class="btn btn-primary btn-lg btn-block">
                 </form>
             </ul>
           </div>
@@ -51,9 +58,16 @@
             <ul class="list-unstyled mt-3 mb-4">
             </ul>
              <form enctype=multipart/form-data method=post>
-                 <input type="file" name = "file" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                 <input type="file" name = "filePDF" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
                  <br>
-                 <input type=submit value=Upload class="btn btn-primary btn-lg btn-block">
+                 {% if result[1] == 1 %}
+                 <h4 class="my-0 fw-normal">You first need to select a file!</h4>
+                 {% endif %}
+                 {% if result[1] == 2 %}
+                 <h4 class="my-0 fw-normal">You selected an invalid file!</h4>
+                 {% endif %}
+                 <br>
+                 <input type="submit" name="UploadPDF" class="btn btn-primary btn-lg btn-block">
                 </form>
           </div>
         </div>
@@ -67,10 +81,24 @@
             <h2 class="card-title pricing-card-title"><small class="text-muted fw-light">Upload PDF and XML for analys</small></h2>
             <ul class="list-unstyled mt-3 mb-4">
                <form enctype=multipart/form-data method=post>
-                    <input type="file" name = "file" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
-                    <input type="file" name = "file" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                    <input type="file" id="fileXML" name = "fileXML" class="form-control" text="No PDF chosen" aria-label="Recipient's username" aria-describedby="basic-addon2" />
+                    <br>
+                    <input type="file" name = "filePDF" class="form-control" value="No PDF chosen" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
                    <br>
-                   <input type=submit value=Upload class="btn btn-primary btn-lg btn-block">
+                    {% if result[2] == 1 %}
+                    <h4 class="my-0 fw-normal">You first need to select a PDF file!</h4>
+                    {% endif %}
+                    {% if result[2] == 2 %}
+                    <h4 class="my-0 fw-normal">You selected an invalid PDF file!</h4>
+                    {% endif %}
+                    {% if result[3] == 1 %}
+                    <h4 class="my-0 fw-normal">You first need to select an XML file!</h4>
+                    {% endif %}
+                    {% if result[3] == 2 %}
+                    <h4 class="my-0 fw-normal">You selected an invalid XML file!</h4>
+                    {% endif %}
+                    <br>
+                   <input type="submit" name="UploadBOTH" class="btn btn-primary btn-lg btn-block">
                 </form>
             </ul>
           </div>
