@@ -77,6 +77,7 @@ model = tf.keras.Sequential([
   layers.Dropout(0.2),
   layers.GlobalAveragePooling1D(),
   layers.Dropout(0.2),
+
   layers.Dense(1)])
 
 model.summary()
