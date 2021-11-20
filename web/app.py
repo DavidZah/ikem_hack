@@ -113,6 +113,14 @@ def upload_file():
                 return render_template("upload.html", result=[0,0,resPDF,0])
     return render_template('upload.html', result=[0,0,0,0])
 
+@app.route("/faq", methods=["GET", "POST"])
+def display_faq():
+    return render_template('faq.html')
+
+@app.route("/about", methods=["GET", "POST"])
+def display_about():
+    return render_template('about.html')
+
 def run(port=8000):
     app.run(debug=False, host='0.0.0.0', port=port)
 
