@@ -8,7 +8,7 @@ import os
 import numpy as np
 import pydot
 import os
-from patient import Patient
+from web.patient import Patient
 from pathlib import Path
 os.environ["PATH"] += os.pathsep + 'C:\\Program Files\\Graphviz\\bin'
 

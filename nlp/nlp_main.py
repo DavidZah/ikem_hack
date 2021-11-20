@@ -12,7 +12,7 @@ import os
 import numpy as np
 import pydot
 import os
-from patient import Patient
+from web.patient import Patient
 from pathlib import Path
 from sklearn.feature_extraction.text import CountVectorizer
 
