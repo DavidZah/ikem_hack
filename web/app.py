@@ -10,6 +10,7 @@ from dataset_use import Predictor
 from utils import *
 from patient import Patient
 import pdf_to_nlp
+import os
 
 
 UPLOAD_FOLDER = Path("tmp")
@@ -57,6 +58,7 @@ def upload_file():
                 patient.generate_from_pdf(content)
                 print(patient.nlp)
                 x = do_ai_magic()
+                os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
                 #DAVIDE TADY CONTENT JSOU TO NLP
                 return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
             else:
@@ -73,6 +75,7 @@ def upload_file():
                 patient.generate_from_ecg(np_data)
                 print(patient.data)
                 x = predictor.predict(patient)*100
+                os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)))
                 xml_stream.truncate(0)
                 return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
             else:
@@ -94,6 +97,8 @@ def upload_file():
                     print(patient.data, patient.nlp)
                     x = predictor.predict(patient)*100
                     xml_stream.truncate(0)
+                    os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
+                    os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)))
                     return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
                 else:
                     return render_template("upload.html", result=[0,0,0,resXML])
