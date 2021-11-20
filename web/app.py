@@ -6,7 +6,7 @@ from flask import render_template
 from flask import Flask, flash, request
 from werkzeug.utils import secure_filename
 import random
-#from dataset_use import Predictor
+from dataset_use import Predictor
 from utils import *
 from patient import Patient
 import pdf_to_nlp
@@ -18,7 +18,7 @@ xml_file=""
 json_data = None
 
 xml_stream = StringIO()
-#predictor = Predictor(str(Path("classifier/final.h5")))
+predictor = Predictor(str(Path("classifier/final.h5")),str(Path("classifier/nlp_model.h5")),str(Path("../data/nlp_vectorizer.pkl")))
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -72,7 +72,7 @@ def upload_file():
                 patient = Patient()
                 patient.generate_from_ecg(np_data)
                 print(patient.data)
-                x = do_ai_magic() #predictor.predict(patient)*100
+                x = predictor.predict(patient)*100
                 xml_stream.truncate(0)
                 return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
             else:
@@ -92,7 +92,7 @@ def upload_file():
                     patient = Patient()
                     patient.generate_from_pdf_and_ecg(content, np_data)
                     print(patient.data, patient.nlp)
-                    x = do_ai_magic() #predictor.predict(patient)*100
+                    x = predictor.predict(patient)*100
                     xml_stream.truncate(0)
                     return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
                 else:

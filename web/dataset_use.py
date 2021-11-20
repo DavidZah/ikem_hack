@@ -12,7 +12,7 @@ class Predictor:
     def __init__(self,xml_model_path,pdf_model_path,vectorizer_path):
         self.xml_model = keras.models.load_model(xml_model_path)
         self.pdf_model = keras.models.load_model(pdf_model_path)
-        self.vectorizer = self.vectorizer(vectorizer_path)
+        self.vectorizer = self.load_vectoriter(vectorizer_path)
 
     def load_vectoriter(self,path):
         with open(path, 'rb') as f:
