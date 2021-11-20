@@ -6,19 +6,19 @@ from flask import render_template
 from flask import Flask, flash, request
 from werkzeug.utils import secure_filename
 import random
-from dataset_use import Predictor
+#from dataset_use import Predictor
 from utils import *
 from patient import Patient
+import pdf_to_nlp
 
 
 UPLOAD_FOLDER = Path("tmp")
-BACKUP_FOLDER = Path("npy/")
 pdf_file=""
 xml_file=""
 json_data = None
 
 xml_stream = StringIO()
-predictor = Predictor(str(Path("classifier/final.h5")))
+#predictor = Predictor(str(Path("classifier/final.h5")))
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -29,16 +29,6 @@ def allowed_file(filename, extension):
 
 def do_ai_magic():
     return random.randrange(0,100)
-
-@app.route('/uploads/<name>')
-def download_file(name):
-    
-    return f'''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Jaká je šance že umřeš</h1>
-    {x}
-    '''
 
 def process_file(request, filename, extension):
     if len(request.files) == 0:
@@ -57,13 +47,18 @@ def process_file(request, filename, extension):
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        print("what")
         if "UploadPDF" in request.form:
             # check if the post request has the file part
             resPDF = process_file(request, "filePDF", "pdf")
             if resPDF == 0:
+                pdf_file = secure_filename(request.files["filePDF"].filename)
+                content = pdf_to_nlp.convert_pdf_to_string(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
+                patient = Patient()
+                patient.generate_from_pdf(content)
+                print(patient.nlp)
                 x = do_ai_magic()
-                return render_template("upload.html", result=[0,3,0,0])
+                #DAVIDE TADY CONTENT JSOU TO NLP
+                return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
             else:
                 return render_template("upload.html", result=[0,resPDF,0,0])
         if "UploadXML" in request.form:
@@ -74,12 +69,10 @@ def upload_file():
                 if ret == None:
                     return render_template("upload.html", result=[2,0,0,0])
                 np_data = generate_numpy(xml_stream.getvalue())
-                save_npy(BACKUP_FOLDER, ret, np_data)
-
-
-                patient = Patient(np_data)
-
-                x = predictor.predict(patient)*100
+                patient = Patient()
+                patient.generate_from_ecg(np_data)
+                print(patient.data)
+                x = do_ai_magic() #predictor.predict(patient)*100
                 xml_stream.truncate(0)
                 return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
             else:
@@ -90,12 +83,16 @@ def upload_file():
                 resXML = process_file(request, "fileXML", "xml")
                 if resXML == 0:
                     xml_file = secure_filename(request.files["fileXML"].filename)
+                    pdf_file = secure_filename(request.files["filePDF"].filename)
                     ret = parse_xml(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)), xml_stream)
+                    content = pdf_to_nlp.convert_pdf_to_string(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
                     if ret == None:
                         return render_template("upload.html", result=[2,0,0,0])
                     np_data = generate_numpy(xml_stream.getvalue())
-                    patient = Patient(np_data)
-                    x = predictor.predict(patient)
+                    patient = Patient()
+                    patient.generate_from_pdf_and_ecg(content, np_data)
+                    print(patient.data, patient.nlp)
+                    x = do_ai_magic() #predictor.predict(patient)*100
                     xml_stream.truncate(0)
                     return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
                 else:

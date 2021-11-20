@@ -18,20 +18,35 @@ The second takes only the data - it is used for simple testing
 The final one takes a csv_file of the large data set and parses it to a readable 2D list, for each parsed identificator it looks for an xml file and an nlp file to upload data
 """
 class Patient:
-    def __init__(self, npy_file, json_file) -> None:
-        self.data = self.import_data(npy_file, json_file)
-        self.identificator = self.data[0]
-        self.classification = self.data[1]
-        self.ecg = self.data[2]
-        self.nlp = None
-    
-    def __init__(self, data) -> None:
-        self.data = data
+    def __init__(self):
+        self.data = None
         self.identificator = None
         self.classification = None
         self.nlp = None
+        self.type = 3
+
+    def generate_from_json(self, npy_file, json_file) -> None:
+        raw_data = self.import_data(npy_file, json_file)
+        self.identificator = self.data[0]
+        self.classification = self.data[1]
+        self.data = raw_data[2]
+        self.nlp = None
+        self.type = 2
     
-    def __init__(self, csv_data, nlp_folder, xml_folder, save_xml=False):
+    def generate_from_ecg(self, data) -> None:
+        self.data = data
+        self.type = 2
+    
+    def generate_from_pdf(self, text) -> None:
+        self.nlp = text
+        self.type = 1 
+    
+    def generate_from_pdf_and_ecg(self, text, data) -> None:
+        self.nlp = text
+        self.data = data
+        self.type = 0
+    
+    def generate_from_xmls(self, csv_data, nlp_folder, xml_folder, save_xml=False):
         self.classification = csv_data[1]
         self.identificator = csv_data[0]
         self.data = self.find_xml(self.identificator, xml_folder, ".xml")
@@ -40,7 +55,7 @@ class Patient:
         self.nlp = self.find_file(self.identificator, nlp_folder, ".txt")
         self.type = self.get_type()
 
-    def __init__(self, csv_data, nlp_folder, npy_folder) -> None:
+    def generate_from_npy(self, csv_data, nlp_folder, npy_folder) -> None:
         self.classification = csv_data[1]
         self.identificator = csv_data[0]
         self.data = self.find_npy(self.identificator, npy_folder, ".npy")
