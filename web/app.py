@@ -1,18 +1,11 @@
-import io
 from datetime import date
-from flask import send_from_directory
-
-from dataset_use import Predictor
 
 today = date.today()
-from flask import Flask, redirect, url_for, request, send_file, render_template
+from flask import render_template
 
-import os
-from pathlib import Path
-from flask import Flask, flash, request, redirect, url_for
+from flask import Flask, flash, request
 from werkzeug.utils import secure_filename
 import random
-from io import StringIO
 from dataset_use import Predictor
 from utils import *
 from patient import Patient
