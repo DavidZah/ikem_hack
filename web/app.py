@@ -13,15 +13,9 @@ from werkzeug.utils import secure_filename
 import random
 
 
-<<<<<<< Updated upstream
-UPLOAD_FOLDER = 'tmp\\'
-ALLOWED_EXTENSIONS = {'xml', 'pdf'}
-=======
-UPLOAD_FOLDER = 'C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/ikem_hack/web/tmp/'
-
-pdf_file = ""
-xml_file = ""
->>>>>>> Stashed changes
+UPLOAD_FOLDER = 'C:/Users/vkoro/ownCloud/HACKATHONGS/healthhack2021/ikem_hack/web/tmp'
+pdf_file=""
+xml_file=""
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -31,11 +25,11 @@ def allowed_file(filename, extension):
            filename.rsplit('.', 1)[1].lower() == extension
 
 def do_ai_magic():
-    return random.randrange(0,100)/100
+    return random.randrange(0,100)
 
 @app.route('/uploads/<name>')
 def download_file(name):
-    x = do_ai_magic()
+    
     return f'''
     <!doctype html>
     <title>Upload new File</title>
@@ -43,43 +37,51 @@ def download_file(name):
     {x}
     '''
 
+def process_file(request, filename, extension):
+    if len(request.files) == 0:
+        return 1
+    elif filename not in request.files:
+        return 1
+    file = request.files[filename]
+    if not allowed_file(file.filename, extension):
+        flash("Selected file is invalid")
+        return 2
+    else:
+        pdf_file = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], pdf_file))
+        return 0
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('download_file', name=filename))
-    return render_template('upload.html')
-
-@app.route('/pdfresult', methods=['GET', 'POST'])
-def upload_pdf():
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('download_file', name=filename))
-    return render_template('upload.html')
+        print("what")
+        if "UploadPDF" in request.form:
+            # check if the post request has the file part
+            resPDF = process_file(request, "filePDF", "pdf")
+            if resPDF == 0:
+                x = do_ai_magic()
+                return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
+            else:
+                return render_template("upload.html", result=[0,resPDF,0,0])
+        if "UploadXML" in request.form:
+            resXML = process_file(request, "fileXML", "xml")
+            if resXML == 0:
+                x = do_ai_magic()
+                return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
+            else:
+                return render_template("upload.html", result=[resXML,0,0,0])
+        if "UploadBOTH" in request.form:
+            resPDF = process_file(request, "filePDF", "pdf")
+            if resPDF == 0:
+                resXML = process_file(request, "fileXML", "xml")
+                if resXML == 0:
+                    x = do_ai_magic()
+                    return render_template("dead.html", result=["width:"+str(x)+"%", str(x)])
+                else:
+                    return render_template("upload.html", result=[0,0,0,resXML])
+            else:
+                return render_template("upload.html", result=[0,0,resPDF,0])
+    return render_template('upload.html', result=[0,0,0,0])
 
 @app.route('/xmlresult', methods=['GET', 'POST'])
 def upload_xml():
@@ -98,4 +100,6 @@ def run(port=8000):
 
 
 if __name__ == '__main__':
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
     app.run(debug=False)
