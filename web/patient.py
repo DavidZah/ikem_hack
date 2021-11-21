@@ -7,7 +7,7 @@ import os
 from utils import *
 from io import StringIO
 from pathlib import Path
-from csv_to_npy import *
+#from csv_to_npy import *
 from xml.dom import minidom
 import pickle
 """
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     nlp_folder =  Path("data/from_pdf")
     xml_folder = Path("data/MUSE_20211007_143634_97000")
     npy_folder = Path("data/npy")
-
+"""
     data = parse_csv_file(csv_file.absolute())
     patients = []
     for i in data:
@@ -143,3 +143,4 @@ if __name__ == "__main__":
 
     with open('data/parrot.pkl', 'wb') as f:
         pickle.dump(patients, f)
+"""

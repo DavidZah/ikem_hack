@@ -127,7 +127,8 @@ if __name__ == "__main__":
     npl_test = Ikem_nlp_pdf(batch_size, val_data, vectorizer)
 
     model = complete_model()
-    model.compile(optimizer="adam", loss=tf.keras.losses.BinaryCrossentropy(from_logits=False), metrics=['accuracy'])
-    model.fit(npl, validation_data=npl_test, epochs=15)
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0000001), loss=tf.keras.losses.BinaryCrossentropy(from_logits=False), metrics=['accuracy'])
+    model.summary()
+    model.fit(npl, validation_data=npl_test, epochs=3)
     model.save_weights('../web/classifier/pdf_nlp.h5')
     print("done")

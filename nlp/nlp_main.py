@@ -94,8 +94,8 @@ if __name__ == "__main__":
 
     model = get_DEM_ECGF_model()
 
-    model.compile(optimizer="adam", loss=tf.keras.losses.BinaryCrossentropy(from_logits=False),metrics=['accuracy'])
-    model.fit(npl,validation_data = npl_test,epochs=10)
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.000001), loss=tf.keras.losses.BinaryCrossentropy(from_logits=False),metrics=['accuracy'])
+    model.fit(npl,validation_data = npl_test,epochs=3)
     model.save(Path("../data/nlp_model.h5"))
     print("done")
 

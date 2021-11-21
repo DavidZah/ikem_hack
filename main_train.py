@@ -1,3 +1,4 @@
+import pickle
 
 from matplotlib import pyplot as plt
 from tensorflow import keras
@@ -12,7 +13,7 @@ from web.patient import Patient
 from pathlib import Path
 os.environ["PATH"] += os.pathsep + 'C:\\Program Files\\Graphviz\\bin'
 
-batch_size = 1
+batch_size = 16
 
 ECG_model_shape = (12,5000,1)
 DEM_ECFG_shape = (24,1)
@@ -89,17 +90,12 @@ class Ikem_beat(keras.utils.Sequence):
 
         batch_input_data = self.source[i: i + self.batch_size]
 
-        if(self.model == 0):
-            raise NotImplementedError
-        if(self.model == 1):
-            x_2 = np.zeros((self.batch_size,) + ECG_model_shape, dtype="float32")
-            y = np.zeros((self.batch_size,) + (1,1), dtype="float32")
-            for j,  data in enumerate(batch_input_data):
-                x_2[j] = np.expand_dims(data.data[2],2)
-                y[j] = data.classification
-            return x_2,y
-        if (self.model == 2):
-            raise NotImplementedError
+        x_2 = np.zeros((self.batch_size,) + ECG_model_shape, dtype="float32")
+        y = np.zeros((self.batch_size,) + (1,1), dtype="float32")
+        for j,  data in enumerate(batch_input_data):
+            x_2[j]  = np.expand_dims(data.data, 2)
+            y[j] = data.classification
+        return x_2,y
 
 def get_DEM_ECGF_model():
     inputs = keras.Input(shape=DEM_ECFG_shape, name="ECGF")
@@ -170,31 +166,40 @@ def complete_model():
     model = keras.Model([inputs_DEM,inputs_ECG],output,name="DAVE_NEURON_NET")
     return model
 
+def filetr_items(data):
+    oper_lst = []
+    for i in data:
+        if(i.type == 2):
+            oper_lst.append(i)
+    return oper_lst
 
 if __name__ == "__main__":
 
-    data = get_training_set(str(Path("data/class2_2.json")),str(Path("data/npy/")))
+    with open('data/parrot.pkl', 'rb') as f:
+        data = pickle.load(f)
 
-    train_data , val_data = get_training_and_validation_set_giv_size(str(Path("data/class2.json")),str(Path("data/npy/")))
-
-    random.shuffle(train_data)
-    random.shuffle(val_data)
-
-    #model = complete_model()
     model = get_wave_form_model()
-    #model = mega_cool_neural_net()
+
     model.summary()
     model.compile(optimizer="adam",loss =tf.keras.losses.BinaryCrossentropy(from_logits=False),metrics=['accuracy'])
     #keras.utils.plot_model(model, "mini_resnet.png", show_shapes=True)
 
     random.seed()
-    random.shuffle(data)
+    #random.shuffle(data)
 
+    data = filetr_items(data)
 
-    val_samples = 250
+    val_samples = 10
 
-    #train_data = data[:-val_samples]
-    #val_data = data[-val_samples:]
+    train_data = data[:-val_samples]
+    val_data = data[-val_samples:]
+
+    for i in train_data:
+        if i.data.shape != (12,5000):
+            print(i)
+
+    #x=  train_data[1366]
+
     print(f"Val data is {len(val_data)}")
     print(f"Train data is {len(train_data)}")
     train_gen = Ikem_beat(batch_size,train_data,1)
