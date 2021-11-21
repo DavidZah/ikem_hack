@@ -7,7 +7,7 @@ import os
 from utils import *
 from io import StringIO
 from pathlib import Path
-from web.csv_to_npy import *
+from csv_to_npy import *
 from xml.dom import minidom
 import pickle
 """
