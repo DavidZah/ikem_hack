@@ -99,7 +99,12 @@ def filetr_items(data):
             oper_lst.append(i)
     return oper_lst
 
-word_vec_size = (1,47195)
+def load_vectoriter(path):
+       with open(path, 'rb') as f:
+           vectorizer = pickle.load(f)
+           return vectorizer
+
+word_vec_size = (1,47431)
 ECG_model_shape = (12,5000,1)
 
 batch_size = 16
@@ -112,10 +117,7 @@ if __name__ == "__main__":
 
 
     data = filetr_items(data)
-    vectorizer = gen_vectored(data)
-
-    with open(Path('../data/nlp_pdf_vectorizer.pkl'), 'wb') as f:
-        pickle.dump(vectorizer, f)
+    vectorizer = load_vectoriter(Path("../data/nlp_vectorizer.pkl"))
 
     val_samples = 1
     train_data = data[:-val_samples]
@@ -126,6 +128,6 @@ if __name__ == "__main__":
 
     model = complete_model()
     model.compile(optimizer="adam", loss=tf.keras.losses.BinaryCrossentropy(from_logits=False), metrics=['accuracy'])
-    model.fit(npl, validation_data=npl_test, epochs=2)
+    model.fit(npl, validation_data=npl_test, epochs=15)
     model.save_weights('../web/classifier/pdf_nlp.h5')
     print("done")

@@ -5,7 +5,24 @@ from tensorflow import keras
 import tensorflow
 import numpy as np
 
-from main_train import get_training_set, complete_model
+from nlp_pdf.nlp_pdf_main import complete_model
+
+def load_weights_by_name(model, path, verbose=False):
+    import h5py
+    def load_model_weights(cmodel, weights):
+        for layer in cmodel.layers:
+            print(layer.name)
+            if hasattr(layer, 'layers'):
+                load_model_weights(layer, weights[layer.name])
+            else:
+                for w in layer.weights:
+                    _, name = w.name.split('/')
+                    if verbose:
+                        print(w.name)
+                    try:
+                        w.assign(weights[layer.name][name][()])
+                    except:
+                        w.assign(weights[layer.name][layer.name][name][()])
 
 
 class Predictor:
@@ -13,7 +30,7 @@ class Predictor:
         self.xml_model = keras.models.load_model(xml_model_path)
         self.pdf_model = keras.models.load_model(pdf_model_path)
         self.pdf_nlp_model = complete_model()
-        self.pdf_nlp_model.load_weights(nlp_pdf_weights)
+        load_weights_by_name(self.pdf_nlp_model,nlp_pdf_weights,True)
         self.vectorizer = self.load_vectoriter(vectorizer_path)
 
     def load_pickle(self,path):
@@ -51,8 +68,8 @@ class Predictor:
             data = np.ndarray.transpose(patient.data)
 
             x_2 = np.expand_dims(data, axis=0)
-            y =self.pdf_nlp_model.predict(x_1,x_2)
-            return y
+            y =self.pdf_nlp_model.predict((x_1,x_2))
+            return y[0][0][0]
 
 
 if __name__ == "__main__":
