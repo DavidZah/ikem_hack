@@ -59,7 +59,10 @@ def upload_file():
                 patient = Patient()
                 patient.generate_from_pdf(content)
                 print(patient.type)
-                x = predictor.predict(patient)*100
+                try:
+                    x = predictor.predict(patient)*100
+                except:
+                    return render_upload_template([0,2,0,0])
                 os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
                 #DAVIDE TADY CONTENT JSOU TO NLP
                 return render_estimation_template(x)
@@ -77,7 +80,10 @@ def upload_file():
                 patient = Patient()
                 patient.generate_from_ecg(np_data)
                 print(patient.data)
-                x = predictor.predict(patient)*100
+                try:
+                    x = predictor.predict(patient)*100
+                except:
+                    return render_upload_template([2,0,0,0])
                 os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)))
                 return render_estimation_template(x)
             else:
@@ -98,7 +104,11 @@ def upload_file():
                     patient = Patient()
                     patient.generate_from_pdf_and_ecg(content, np_data)
                     print(patient.data, patient.nlp)
-                    x = predictor.predict(patient)*100
+                    try:
+                        x = predictor.predict(patient)*100
+                    except:
+                        return render_upload_template([0,0,0,2])
+                        
                     os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(pdf_file)))
                     os.remove(str(app.config['UPLOAD_FOLDER'].joinpath(xml_file)))
                     return render_estimation_template(x)
