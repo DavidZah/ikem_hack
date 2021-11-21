@@ -6,37 +6,30 @@
         <h1 class="text-center fw-bold">FAQs</h1>
         <ul class="list-unstyled mt-4 mb-4 px-3">
             <div class="pb-4">
-                <h4 class="ps-0">What is project Aorta Check good for?</h4>
+                <h4 class="ps-0">What challenges from Hackhealth 2021 does Aorta Check solve?</h4>
                 <div class="ps-0 ps-md-3">
-                    Lorem ipsum dolor sit amet alsdkfjalsdkjfalsdkfjalkj fjaldkff f asjdfl df adf adf ajlgkaj gajooag gja.
+                    The aortic stenosis risk factor calculator Aorta Check developed by the team Student Dreamers attempts to solve the challenges 10 and 11 which both deal with aortic stenosis prediction from different means. This means that we have developed a neural classifier that can use either NLP of IKEM patient medical reports to calculate the risk factor, or it can use waveform data from patient ECGs to do the same, and most importantly <i>Aorta Check can calculate the risk factor from both of these data inputs at once</i>.
                 </div>
             </div>
 
             <div class="pb-4">
-                <h4 class="ps-0">What is the aortic stenosis?</h4>
+                <h4 class="ps-0">What is the calculated risk factor?</h4>
                 <div class="ps-0 ps-md-3">
-                    Lorem ipsum dolor sit amet alsdkfjalsdkjfalsdkfjalkj fjaldkff f asjdfl df adf adf ajlgkaj gajooag gja.
+                    The value of risk factor is at this point supposed to simulate the risk that the patient is afflicted by aortic stenosis and therefore represents the urgency at which a patient should get a screening that is more capable of detecting aortic stenosis.
                 </div>
             </div>
 
             <div class="pb-4">
-                <h4 class="ps-0">What is the aortic stenosis risk factor?</h4>
+                <h4 class="ps-0">What classifier is used for calculating the risk factor?</h4>
 
                 <div class="ps-0 ps-md-3">
-                    Lorem ipsum dolor sit amet alsdkfjalsdkjfalsdkfjalkj fjaldkff f asjdfl df adf adf ajlgkaj gajooag gja.
+                    The classifier used is deep neural network with an input data consisting of cNLP of a medical reports and or raw data captured by the ECG screening. On this website, the cases where one of these input vectors is missing are treated by running them on a smaller network consisting of only a needed branch of neurons from the deep learning network to ease up on the computational complexity.
                 </div>
             </div>
             <div class="pb-4">
-                <h4 class="ps-0">How is a risk factor estimated?</h4>
+                <h4 class="ps-0">How accurate is the classifier?</h4>
                 <div class="ps-0 ps-md-3">
-                    Lorem ipsum dolor sit amet alsdkfjalsdkjfalsdkfjalkj fjaldkff f asjdfl df adf adf ajlgkaj gajooag gja.
-                </div>
-            </div>
-
-            <div class="pb-4">
-                <h4 class="ps-0">What should I do if my risk factor is high?</h4>
-                <div class="ps-0 ps-md-3">
-                    Lorem ipsum dolor sit amet alsdkfjalsdkjfalsdkfjalkj fjaldkff f asjdfl df adf adf ajlgkaj gajooag gja.
+                    The classifier is definitely capable of running at reasonable accuracies and for the training set provided it learns very well how to properly calculate the risk factor for the different patients. However, that does not mean it can be used for clinical use for which the major roadblock seems to be acquisition of better training data. Especially, the currently provided training data for cNLP are lacking and would need further investment.
                 </div>
             </div>
         </ul>
