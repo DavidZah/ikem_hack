@@ -23,7 +23,9 @@ def load_weights_by_name(model, path, verbose=False):
                         w.assign(weights[layer.name][name][()])
                     except:
                         w.assign(weights[layer.name][layer.name][name][()])
-
+def divno_vec(x):
+    y = (((2*(x-0.5))**3)/2)+0.5
+    return round(y, 2)
 
 class Predictor:
     def __init__(self,xml_model_path,pdf_model_path,vectorizer_path,nlp_pdf_weights):
@@ -49,7 +51,8 @@ class Predictor:
 
             to_predict = np.expand_dims(data,axis=0)
             x = self.xml_model.predict(to_predict)
-            return x[0][0]
+            y = divno_vec(x[0][0])
+            return y
         if(patient.type == 1):
 
             string = patient.nlp
@@ -58,7 +61,9 @@ class Predictor:
             to_predict = np.expand_dims(vec,axis=0)
             x = self.pdf_model.predict(to_predict)
             x = x[0][0][0]
-            return x
+            y = divno_vec(x)
+            return y
+
         if(patient.type == 0):
             string = patient.nlp
             # string = string.decode("utf-8")
@@ -69,7 +74,8 @@ class Predictor:
 
             x_2 = np.expand_dims(data, axis=0)
             y =self.pdf_nlp_model.predict((x_1,x_2))
-            return y[0][0][0]
+            y = divno_vec(y[0][0][0])
+            return y
 
 
 if __name__ == "__main__":
